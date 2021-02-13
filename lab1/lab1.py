@@ -16,10 +16,8 @@ class Solution:
         
     def count(self) -> int:
         # The number of observations/entries in the dataset.
-        #print(self.chipo.items)
         if(self.chipo.empty):
             return -1
-        
         return len(self.chipo)
         
     
@@ -32,7 +30,6 @@ class Solution:
         # return the number of columns in the dataset
         if(self.chipo.empty):
             return -1
-        
         return len(self.chipo.columns)
         
     
@@ -42,77 +39,61 @@ class Solution:
         pass
     
     def most_ordered_item(self):
-        
         item_name = self.chipo['item_name'].value_counts().idxmax()
         result=self.chipo[self.chipo['item_name']==item_name]
-        #cnt=result['quantity'].sum()
-        #cnt=result['quantity'].count()
         order_id = result['order_id'].sum()
         quantity = result['quantity'].sum()
         return item_name,order_id,quantity
 
     def total_item_orders(self) -> int:
        #  How many items were orderd in total?
-
         if(self.chipo.empty):
             return -1
-
-        return self.chipo['quantity'].sum()
-       
+        return self.chipo['quantity'].sum()      
        
    
     def total_sales(self) -> float:
-         
         # 1. Create a lambda function to change all item prices to float.
         self.chipo['item_price'] = (self.chipo['item_price'].str.split()).apply(lambda x: float(x[0].replace('$', '')))
+        
         # 2. Calculate total sales
         if(self.chipo.empty):
             return 0.0
-        
-        #self.chipo['item_price*quantity']=self.chipo['item_price']*self.chipo['quantity']
         return (self.chipo['item_price']*self.chipo['quantity']).sum()
-
-        
+       
    
     def num_orders(self) -> int:
-        
         # How many orders were made in the dataset?
         if(self.chipo.empty):
             return -1
-
         return self.chipo.order_id.nunique()
-        #return len(pd.unique(self.chipo['order_id']))
-        
-    
+
+            
     def average_sales_amount_per_order(self) -> float:
-        
-        #for i in chipo:
-        #res+=chipo.quantity * chipo.item_price
         if(self.chipo.empty):
             return 0.0
-
-        #self.chipo['item_price*quantity']=self.chipo['item_price']*self.chipo['quantity']
         sum=(self.chipo['item_price']*self.chipo['quantity']).sum()
         orders=self.chipo.order_id.nunique()
         return (sum/orders).round(decimals=2)
 
 
-    def num_different_items_sold(self) -> int:
-        
+    def num_different_items_sold(self) -> int: 
         # How many different items are sold?
         if(self.chipo.empty):
             return -1
-
         return self.chipo.item_name.nunique()
         
     
     def plot_histogram_top_x_popular_items(self, x:int) -> None:
         from collections import Counter
         letter_counter = Counter(self.chipo.item_name)
+        
         # 1. convert the dictionary to a DataFrame
         chipo_df=pd.DataFrame(list(letter_counter.items()),columns=['item_name','quantity'])
+        
         # 2. sort the values from the top to the least value and slice the first 5 items
         chipo_df=chipo_df.sort_values('quantity',ascending=False)[0:5]
+        
         # 3. create a 'bar' plot from the DataFrame
         chipo_df.plot(x = "item_name", y = "quantity", kind = "bar",
         figsize=(6,8),legend=False)
@@ -122,41 +103,29 @@ class Solution:
         #     x: Items
         #     y: Number of Orders
         #     title: Most popular items
-        ##self.chipo.plot(x = 'Items', y = 'Number of Orders', kind = 'bar')
-        #ax.set_xlabel("Items")
-        #ax.set_ylabel("Number of Orders")
         plt.xlabel('Items')
         plt.ylabel('Number of Orders')
         plt.title('Most popular items')
-        # 5. show the plot. Hint: plt.show(block=True).
         
+        # 5. show the plot. Hint: plt.show(block=True).
         plt.show(block=True)
         pass
         
     def scatter_plot_num_items_per_order_price(self) -> None:
-        # TODO
         # 1. create a list of prices by removing dollar sign and trailing space.
-        #chipo_list=self.chipo['item_price'].replace('$','').tolist()
-        #chipo_list=self.chipo['item_price']
-        #chipo_list=chipo_list.tolist()
         chipo_list=self.chipo['item_price'].replace('$','')
-        # 2. groupby the orders and sum it.
         
+        # 2. groupby the orders and sum it.  
         price=self.chipo.groupby('order_id')['item_price'].sum()
         quant=self.chipo.groupby('order_id')['quantity'].sum()
         price=price.to_frame()
         quant=quant.to_frame()
+        
         # 3. create a scatter plot:
         #       x: orders' item price
         #       y: orders' quantity
         #       s: 50
         #       c: blue
-        """
-        self.chipo['item_price'] = (self.chipo['item_price'].str.split()).apply(lambda x: float(x[0].replace('$', '')))
-        """
-        #chipo_sort=self.chipo.sort_values('item_price')
-           
-        #plt.scatter(chipo_sort.item_price,chipo_sort.quantity,s=50,c='blue')
         plt.scatter(price['item_price'],quant['quantity'],s=50,c='blue')
         plt.xticks(rotation=0, horizontalalignment="center")
         
@@ -164,19 +133,14 @@ class Solution:
         #       title: Numer of items per order price
         #       x: Order Price
         #       y: Num Items
-
-
         plt.xlabel('Order Price')
         plt.ylabel('Num Items')
         plt.title('Numer of items per order price')
-        plt.show()
-        
+        plt.show() 
         pass
     
         
-
-def test() -> None:
-    
+def test() -> None:  
     solution = Solution()
     
     solution.top_x(10)
@@ -197,8 +161,7 @@ def test() -> None:
     assert total == 4972
     
     assert 39237.02 == solution.total_sales()
-   
-    
+     
     assert 1834 == solution.num_orders()
     
     assert 21.39 == solution.average_sales_amount_per_order()
