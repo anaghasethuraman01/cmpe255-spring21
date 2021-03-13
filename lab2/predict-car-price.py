@@ -48,20 +48,75 @@ class CarPrice:
     
     
 
-    def linear_regression(self, X, y):
+    
+    def linear_regression_reg(self,X, y, r):
         ones = np.ones(X.shape[0])
         X = np.column_stack([ones, X])
-
+    
         XTX = X.T.dot(X)
+        reg = r * np.eye(XTX.shape[0])
+        XTX = XTX + reg
+
         XTX_inv = np.linalg.inv(XTX)
         w = XTX_inv.dot(X.T).dot(y)
-
+    
         return w[0], w[1:]
 
-   
-    def prepare_X(self,df):
         
-        df_num = df[self.base]
+
+   
+   
+    
+    
+    def prepare_X(self,df):
+        df = df.copy()
+        features = self.base.copy()
+
+        df['age'] = 2017 - df.year
+        features.append('age')
+    
+        for v in [2, 3, 4]:
+            feature = 'num_doors_%s' % v
+            df[feature] = (df['number_of_doors'] == v).astype(int)
+            features.append(feature)
+
+        for v in ['chevrolet', 'ford', 'volkswagen', 'toyota', 'dodge']:
+            feature = 'is_make_%s' % v
+            df[feature] = (df['make'] == v).astype(int)
+            features.append(feature)
+
+        for v in ['regular_unleaded', 'premium_unleaded_(required)', 
+                  'premium_unleaded_(recommended)', 'flex-fuel_(unleaded/e85)']:
+            feature = 'is_type_%s' % v
+            df[feature] = (df['engine_fuel_type'] == v).astype(int)
+            features.append(feature)
+
+        for v in ['automatic', 'manual', 'automated_manual']:
+            feature = 'is_transmission_%s' % v
+            df[feature] = (df['transmission_type'] == v).astype(int)
+            features.append(feature)
+
+        for v in ['front_wheel_drive', 'rear_wheel_drive', 'all_wheel_drive', 'four_wheel_drive']:
+            feature = 'is_driven_wheens_%s' % v
+            df[feature] = (df['driven_wheels'] == v).astype(int)
+            features.append(feature)
+
+        for v in ['crossover', 'flex_fuel', 'luxury', 'luxury,performance', 'hatchback']:
+            feature = 'is_mc_%s' % v
+            df[feature] = (df['market_category'] == v).astype(int)
+            features.append(feature)
+
+        for v in ['compact', 'midsize', 'large']:
+            feature = 'is_size_%s' % v
+            df[feature] = (df['vehicle_size'] == v).astype(int)
+            features.append(feature)
+
+        for v in ['sedan', '4dr_suv', 'coupe', 'convertible', '4dr_hatchback']:
+            feature = 'is_style_%s' % v
+            df[feature] = (df['vehicle_style'] == v).astype(int)
+            features.append(feature)
+
+        df_num = df[features]
         df_num = df_num.fillna(0)
         X = df_num.values
         return X
@@ -80,7 +135,7 @@ class CarPrice:
         X = X.copy()
         X = X[columns]
         X['msrp'] =np.expm1(y.round(2))
-        X['msrp_pred'] = np.expm1(y_pred.round(2))
+        X['msrp_pred'] =np.expm1 (y_pred.round(2))
         print(X.head(5).to_string(index=False))
     
     
@@ -97,19 +152,34 @@ if __name__ == "__main__":
     
     
     X_train = cp.prepare_X(df_train)
-    w_0, w = cp.linear_regression(X_train, y_train)
-    y_train_pred = w_0 + X_train.dot(w)
     
-    
+        
     X_val = cp.prepare_X(df_val)
-    y_val_pred = w_0 + X_val.dot(w)
+    print("RMSE values for different values of r ")
+    for r in [0.000001, 0.0001, 0.001, 0.01, 0.1, 1, 5, 10]:
+        w_0, w = cp.linear_regression_reg(X_train, y_train, r=r)
+        y_pred = w_0 + X_val.dot(w)
+        print('%6s' %r, cp.validate(y_val, y_pred))
+   
+    # r=0.000001  is used because it gave the least rmse value
+    # 1e-06   0.46022512570232416
+    # 0.0001  0.460225493112593
+    # 0.001   0.46022676283119085
+    # 0.01    0.460239496312196
+    # 0.1     0.4603700695820121
+    # 1       0.461829804265233
+    # 5       0.4684079627532219
+    # 10      0.47572481006951994
+
+    print("r = 0.000001  is used because it gave the least rmse value")
+    w_0, w = cp.linear_regression_reg(X_train, y_train, r=0.000001)
     
+       
     X_test = cp.prepare_X(df_test)
     y_test_pred = w_0 + X_test.dot(w)
-
-    perf_train = round(cp.validate(y_train, y_train_pred),4)
-    perf_val = round(cp.validate(y_val, y_val_pred),4)
-    perf_test = round(cp.validate(y_test, y_test_pred),4)
+    perf_test = round(cp.validate(y_test, y_test_pred),2)
     
+    # printing predictions on test data set
+    print("Printing original msrp vs. predicted msrp of 5 cars") 
     cp.display( df_test, y_test, y_test_pred)
     print('Test rmse: ', round(perf_test,4))
