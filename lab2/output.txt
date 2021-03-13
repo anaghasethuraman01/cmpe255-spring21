@@ -1,0 +1,19 @@
+$11914 lines loaded
+RMSE values for different values of r 
+ 1e-06 0.46022512570232416
+0.0001 0.460225493112593
+ 0.001 0.46022676283119085
+  0.01 0.460239496312196
+   0.1 0.4603700695820121
+     1 0.461829804265233
+     5 0.4684079627532219
+    10 0.47572481006951994
+r = 0.000001  is used because it gave the least rmse value
+Printing original msrp vs. predicted msrp of 5 cars
+ engine_cylinders transmission_type    driven_wheels  number_of_doors       market_category vehicle_size vehicle_style  highway_mpg  city_mpg  popularity         msrp    msrp_pred
+              6.0         automatic rear_wheel_drive              3.0                   NaN      compact     cargo_van           20        15         549  1997.195895  3943.194382
+             12.0         automatic rear_wheel_drive              2.0                luxury        large         coupe           15        11         617  3196.101829 11848.014754
+              6.0         automatic  all_wheel_drive              4.0 crossover,performance      midsize         wagon           25        18        2031 31256.042820 28281.541920
+              4.0         automatic rear_wheel_drive              4.0                luxury      midsize         sedan           26        18         870  1997.195895  2343.904605
+              8.0         automatic rear_wheel_drive              4.0             flex_fuel        large         sedan           24        16        5657 30030.436640 23154.786845
+Test rmse:  0.46
