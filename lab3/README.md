@@ -12,7 +12,4 @@
 - False Negatives (FN): we incorrectly predicted that they don't have diabetes (a "Type II error")
 
 
-
-
-
-
+Try to build a number-5 detector classifier for the [MNIST](http://yann.lecun.com/exdb/mnist/) dataset from Scikit-Learn. You can use either binary classifer or multi-classifier.
